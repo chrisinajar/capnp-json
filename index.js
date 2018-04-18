@@ -2,8 +2,11 @@
 module.exports = toJSON;
 
 function toJSON (capnpObject, struct) {
-  if (typeof capnpObject !== 'object' || Array.isArray(capnpObject) || !capnpObject._capnp) {
+  if (typeof capnpObject !== 'object' || !capnpObject._capnp) {
     return capnpObject;
+  }
+  if (Array.isArray(capnpObject)) {
+    return capnpObject.map(toJSON);
   }
   struct = struct || capnpObject.constructor;
   let which = capnpObject.which ? capnpObject.which() : -1;
@@ -55,8 +58,15 @@ function assignGetter(data, name, capnpObject, method) {
     configurable: true,
     get: function () {
       var value = capnpObject[method]();
-      if (value._capnp) {
-        value = toJSON(value, value.constructor);
+      switch (value.constructor.name) {
+        case 'Uint64':
+        case 'Int64':
+          // just tostring all 64 bit ints
+          value = value.toString();
+          break;
+        default:
+          value = toJSON(value);
+          break;
       }
       Object.defineProperty(data, name, {
         configurable: false,

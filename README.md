@@ -29,6 +29,8 @@ Scans through all of `struct` and creates a result object containing all of the 
 
  * `struct`: (`capnp-ts Struct`): The struct to convert into json.
 
+*NOTE*: All 64-bit integers, signed or unsigned, will be converted to string at the time of fetching. Like all values, the result will be cached and the underlying structure will not call the getter again.
+
 ### Why?
 `capnp-ts` does a very poor job at letting you know which properties are available, and unforunately the slowest part of the library is the error handling code. By converting the structs into enumerable json objects we get rid of the ability to call getters which lack underlying data, avoiding these laggy awkward corner cases.
 
