@@ -2,10 +2,17 @@
 module.exports = toJSON;
 
 function toJSON (capnpObject, struct) {
+  if (typeof capnpObject !== 'object' || Array.isArray(capnpObject) || !capnpObject._capnp) {
+    return capnpObject;
+  }
   struct = struct || capnpObject.constructor;
   let which = capnpObject.which ? capnpObject.which() : -1;
   let unionCapsName = null;
   let unionName = null;
+
+  if (capnpObject.constructor._capnp.displayName.startsWith('List')) {
+    return capnpObject.toArray().map((n) => toJSON(n));
+  }
 
   let data = {};
 
